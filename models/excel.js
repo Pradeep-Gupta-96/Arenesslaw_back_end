@@ -203,6 +203,10 @@ const excelSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
+    },
+    role: {
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 

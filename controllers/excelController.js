@@ -6,7 +6,7 @@ import pdf from "html-pdf"
 
 export const postexceldata = async (req, res) => {
     try {
-        const { filename, template } = req.body
+        const { filename, template, role } = req.body
         const userId = req.userId
 
         var workbook = XLSX.readFile(req.file.path)
@@ -40,7 +40,8 @@ export const postexceldata = async (req, res) => {
                 filename,
                 template,
                 xlData,
-                userId
+                userId,
+                role
             })
             x++;
         })
@@ -52,8 +53,21 @@ export const postexceldata = async (req, res) => {
 
 export const getAllexceldata = async (req, res) => {
     try {
-        const data = await Excel.find()
-        return res.status(200).json({ message: data })
+            const data = await Excel.find()
+            return res.status(200).json({ message: data })
+
+    } catch (error) {
+        res.status(500).json({ msg: error.message })
+    }
+}
+
+export const getbyuserdata = async (req, res) => {
+    try {
+        const userId = req.userId
+        const currentlogin = await Excel.find({ $and: [{ role: "User" }, { userId: userId }] })
+        if (currentlogin) {
+            return res.status(200).json({ message: currentlogin })
+        }
     } catch (error) {
         res.status(500).json({ msg: error.message })
     }
