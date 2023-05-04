@@ -3,49 +3,58 @@ import XLSX from 'xlsx'
 import fs from 'fs'
 import pdf from "html-pdf"
 
-
 export const postexceldata = async (req, res) => {
     try {
         const { filename, template, role } = req.body
         const userId = req.userId
-
         var workbook = XLSX.readFile(req.file.path)
         var sheet_Namelist = workbook.SheetNames;
-        var x = 0
-        sheet_Namelist.forEach(element => {
-            var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_Namelist[x]]);
-            //create dynamic pdf of every users 
-            var html = fs.readFileSync('./output.html', 'utf8');
-            var options = { format: 'Letter' };
-            xlData.map((item, index) => {
-                console.log(item.FPR_NAME)
-                let mapObj = {
-                    "{{Amount}}": "130",
-                    "{Prise}": "200"
-                }
-
-                html = html.replace(/{{Amount}}|{Prise}/gi, (matched) => { return mapObj[matched] })
-                pdf.create(html, options).toFile('./email.pdf', async (err, res) => {
-                    if (err) {
-                        return console.log(err);
-                    } else {
-                        console.log(res.filename); //  { filename: 'C:\\ARENESS\\createpdf\\invoice.pdf' }
+        const search = {
+            filename: filename
+        }
+        const findexcelname = await Excel.findOne(search)
+        if (!findexcelname) {
+            sheet_Namelist.forEach(element => {
+                //============== convert to json and save data =====================
+                var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_Namelist]);
+                Excel.insertMany({
+                    filename,
+                    template,
+                    xlData,
+                    userId,
+                    role
+                })
+                var html = fs.readFileSync('./output.html', 'utf8');
+                var options = { format: 'Letter' };
+                //================ Dynamically chage the data and create pdf ============
+                xlData.map((item, index) => {
+                    let mapObj = {
+                        "[ NAME ]": item.FPR_NAME,
+                        "[ ADDRESS ]": item.ADDRESS1,
+                        "[ EMAIL ADDRESS ]": item["E-mail"],
+                        "[ PHONE ]": item.FPR_MOB,
+                        "[ CITY ]": item.CITY,
+                        "[ STATE ]": item.STATE
                     }
-                });
+                    html = html.replace(/[ NAME ]|[ ADDRESS ]|[EMAIL ADDRESS]|[PHONE]|[ CITY ]|[ STATE ]/gi, (matched) => { return mapObj[matched] })
+
+                    pdf.create(html, options).toFile('./email.pdf', async (err, res) => {
+                        if (err) {
+                            return console.log(err);
+                        } else {
+                            const value = res.filename
+                            setTimeout(inserting, 1000)
+                            async function inserting() {
+                                await Excel.updateMany({ filename: filename }, { $set: { "xlData.$[].pdflink": value } })
+                            }
+                        }
+                    })
+                })
             })
-            // console.log(pd)
-            // save data in database
-            // console.log(xlData)
-            Excel.insertMany({
-                filename,
-                template,
-                xlData,
-                userId,
-                role
-            })
-            x++;
-        })
-        return res.json({ status: 200, success: true, msg: 'running' })
+            return res.json({ status: 200, success: true, msg: 'running' })
+        } else {
+            return res.json({ status: 200, success: true, msg: 'Stop' })
+        }
     } catch (error) {
         res.send({ status: 500, success: false, msg: error.message })
     }
@@ -53,9 +62,8 @@ export const postexceldata = async (req, res) => {
 
 export const getAllexceldata = async (req, res) => {
     try {
-            const data = await Excel.find()
-            return res.status(200).json({ message: data })
-
+        const data = await Excel.find()
+        return res.status(200).json({ message: data })
     } catch (error) {
         res.status(500).json({ msg: error.message })
     }
@@ -82,5 +90,6 @@ export const getSingleexceldata = async (req, res) => {
         res.status(500).json({ msg: error.message })
     }
 }
+
 
 
