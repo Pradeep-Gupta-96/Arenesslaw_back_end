@@ -24,32 +24,32 @@ export const postexceldata = async (req, res) => {
                     userId,
                     role
                 })
-                var html = fs.readFileSync('./output.html', 'utf8');
-                var options = { format: 'Letter' };
-                //================ Dynamically chage the data and create pdf ============
-                xlData.map((item, index) => {
-                    let mapObj = {
-                        "[ NAME ]": item.FPR_NAME,
-                        "[ ADDRESS ]": item.ADDRESS1,
-                        "[ EMAIL ADDRESS ]": item["E-mail"],
-                        "[ PHONE ]": item.FPR_MOB,
-                        "[ CITY ]": item.CITY,
-                        "[ STATE ]": item.STATE
-                    }
-                    html = html.replace(/[ NAME ]|[ ADDRESS ]|[EMAIL ADDRESS]|[PHONE]|[ CITY ]|[ STATE ]/gi, (matched) => { return mapObj[matched] })
+                // var html = fs.readFileSync('./output.html', 'utf8');
+                // var options = { format: 'Letter' };
+                // //================ Dynamically chage the data and create pdf ============
+                // xlData.map((item, index) => {
+                //     let mapObj = {
+                //         "[ NAME ]": item.FPR_NAME,
+                //         "[ ADDRESS ]": item.ADDRESS1,
+                //         "[ EMAIL ADDRESS ]": item["E-mail"],
+                //         "[ PHONE ]": item.FPR_MOB,
+                //         "[ CITY ]": item.CITY,
+                //         "[ STATE ]": item.STATE
+                //     }
+                //     html = html.replace(/[ NAME ]|[ ADDRESS ]|[EMAIL ADDRESS]|[PHONE]|[ CITY ]|[ STATE ]/gi, (matched) => { return mapObj[matched] })
 
-                    pdf.create(html, options).toFile('./email.pdf', async (err, res) => {
-                        if (err) {
-                            return console.log(err);
-                        } else {
-                            const value = res.filename
-                            setTimeout(inserting, 1000)
-                            async function inserting() {
-                                await Excel.updateMany({ filename: filename }, { $set: { "xlData.$[].pdflink": value } })
-                            }
-                        }
-                    })
-                })
+                //     pdf.create(html, options).toFile('./email.pdf', async (err, res) => {
+                //         if (err) {
+                //             return console.log(err);
+                //         } else {
+                //             const value = res.filename
+                //             setTimeout(inserting, 1000)
+                //             async function inserting() {
+                //                 await Excel.updateMany({ filename: filename }, { $set: { "xlData.$[].pdflink": value } })
+                //             }
+                //         }
+                //     })
+                // })
             })
             return res.json({ status: 200, success: true, msg: 'running' })
         } else {

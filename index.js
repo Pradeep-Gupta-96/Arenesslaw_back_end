@@ -9,8 +9,9 @@ import { noticeRouter } from "./routes/noticeRoute.js";
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import path from 'path'
+import { emailtempRoute } from "./routes/emailtempRoute.js";
 const app = express()
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: true,parameterLimit:10000,limit:"500MB" }))
 app.use(bodyParser.json())
 app.use(cors())
 
@@ -23,6 +24,7 @@ database()
 app.use("/user", userRouter)
 app.use("/excel", excelRoute)
 app.use("/notice", noticeRouter)
+app.use("/emailtemp", emailtempRoute)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 app.use(express.static(path.join(__dirname, 'public')))
