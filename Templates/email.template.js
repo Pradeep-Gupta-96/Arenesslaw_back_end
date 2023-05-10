@@ -1,11 +1,11 @@
 
 const emailTemplatee = (data) => {
 	return `
-	<html style="font: 16px/1 'Open Sans', sans-serif; overflow: auto; padding: 0.5in; background: #999; cursor: default;">
+	<html style="font: 16px/1 'Open Sans', sans-serif; overflow: auto; padding: 0.5in; background: #999; cursor: default;box-sizing: border-box;  margin: 0 auto; overflow: hidden; padding: 0.5in; background: #FFF; border-radius: 1px; box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5);">
 
 	<head>
 		<meta charset="utf-8">
-		<title>Invoice</title>
+		<title>Areness Attorneys</title>
 		<style>
 			* {
 				border: 0;
@@ -27,7 +27,7 @@ const emailTemplatee = (data) => {
 	</head>
 	
 	<body
-		style="box-sizing: border-box; height: 11in; margin: 0 auto; overflow: hidden; padding: 0.5in; width: 8.5in;background: #FFF; border-radius: 1px; box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5);">
+		style="">
 		<header style="margin: 0 0 3em;display: inline-block;width: 100%;">
 			<div class="header-top" style="display: inline-block;width: 100%;">
 				<div style="float: left;"><img src="https://www.arenesslaw.com/public/assets/images/logo.png" alt=""
