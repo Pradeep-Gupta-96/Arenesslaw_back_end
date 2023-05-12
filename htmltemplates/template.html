@@ -1,6 +1,4 @@
 
-const emailTemplatee = (data) => {
-	return `
 	<html style="font: 16px/1 'Open Sans', sans-serif; overflow: auto; padding: 0.5in; background: #999; cursor: default;box-sizing: border-box;  margin: 0 auto; overflow: hidden; padding: 0.5in; background: #FFF; border-radius: 1px; box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5);">
 	<head>
 		<meta charset="utf-8">
@@ -32,10 +30,10 @@ const emailTemplatee = (data) => {
 				<div style="float: right;">
 					<h3
 						style="text-align: right;font-style: normal;font-weight: bold;font-size: 25pt;font-family: DejaVu Serif Condensed;color: #405189;line-height: 20px;border-bottom: 2px solid #405189;padding-bottom: 10px;">
-						${data.title}</h3>
+						Areness Attorneys</h3>
 					<h4
 						style="text-align: right;font-style: normal;font-weight: bold;font-size: 18pt;font-family: DejaVu Serif Condensed;color: #676464;padding: 10px 0px;">
-						${data.subtitle}</h4>
+						Advocates</h4>
 				</div>
 				<hr style="border-bottom: 1px solid #ccc;display: inline-block;width: 100%;margin-bottom: 1px;">
 				<hr style="border-bottom: 1px solid #ccc;display: inline-block;width: 100%;"><br>
@@ -43,16 +41,16 @@ const emailTemplatee = (data) => {
 			<br><br>
 			<address
 				style="width: 100%;float: left; font-size: 75%; font-style: normal; line-height: 1.25; margin: 0 1em 1em 0;">
-				<p style="float: left;padding-bottom: 10px;margin: 0 0 0.25em;">${data.noticeid}: <strong> ${data.noticeidEg}</strong> </p>
-				<p style="float: right;padding-bottom: 10px;margin: 0 0 0.25em;">${data.noticedate} : <strong>
-				${data.noticedateEg}</strong></p>
-				<p style="display: inline-block;width: 100%;padding-bottom: 10px;margin: 0 0 0.25em;">${data.to}<br>${data.address} </p>
-				<p>${data.subject}:${data.subjecttitle}</p>
+				<p style="float: left;padding-bottom: 10px;margin: 0 0 0.25em;">Notice Id: <strong> [notice_id]</strong> </p>
+				<p style="float: right;padding-bottom: 10px;margin: 0 0 0.25em;">Notice Date : <strong>
+				[notice_date]</strong></p>
+				<p style="display: inline-block;width: 100%;padding-bottom: 10px;margin: 0 0 0.25em;">[name] (Hereinafter 'Loan Holder')<br>[address] </p>
+				<p>Subject:Legal demand notice for overdue amount of INR [overdue_amount]/- in respect of the loan account no. [loan_account]</p>
 			</address>
 			
 		</header>
 		<article style="margin: 0 0 3em;font-size: 75%; font-style: normal; line-height: 1.25; ">
-			<p style="text-align: center;">${data.ContentInner}</p>
+			<p style="text-align: center;"><ol><li>In Consumer Forums: In case, a faulty product or service is provided to a person he or she can send a legal notice to the concerned person and ask him to rectify the deficiencies.&nbsp;</li><li>Legal notice can be issued in a variety of situations. For example, if you believe that someone has committed a crime against you, you can issue a legal document demanding that they stop the behavior or face legal action.</li><li>You can also issue a lawyer’s notice if you have been the victim of fraud or deception. In this case, the legal document will demand that the person responsible for the fraud compensate you for your losses</li></ol><p>If you receive a Legal Notice by Advocate, there are a few things you can do. First, you should read the notice carefully and make sure you understand it. If you have any questions about the notice, you should consult with an attorney. congratulations this is updated file !&nbsp;</p></p>
 		</article>
 		<aside>
 			<h1
@@ -61,11 +59,8 @@ const emailTemplatee = (data) => {
 			<hr style="border-bottom: 1px solid #ccc;display: inline-block;width: 100%;margin-bottom: 1px;">
 			<hr style="border-bottom: 1px solid #ccc;display: inline-block;width: 100%;margin-bottom: 5px;">
 			<div style="font-size: 75%; font-style: normal; line-height: 1.25;">
-				<p style="text-align: center;font: 12px/1 'Open Sans', sans-serif;">${data.ContentFooter}</p>
+				<p style="text-align: center;font: 12px/1 'Open Sans', sans-serif;"><p><i><strong>You Need to Know About A legal notice is issued for a variety of reasons. Usually, such a notice is issued by law or by the court. It has to be served in specific formalities. The same can be applied for a criminal case or civil suit matter as well as a commercial dispute</strong></i></p></p>
 			</div>
 		</aside>
 	</body>
-	</html>`;
-};
-
-export default emailTemplatee;
+	</html>

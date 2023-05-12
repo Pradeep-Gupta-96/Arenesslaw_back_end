@@ -1,5 +1,5 @@
 import express from 'express'
-import { postexceldata, getAllexceldata, getSingleexceldata, getbyuserdata } from '../controllers/excelController.js'
+import { postexceldata, getAllexceldata, getSingleexceldata, getbyuserdata, getPDF } from '../controllers/excelController.js'
 export const excelRoute = express.Router()
 import multer from 'multer'
 import auth from '../middleware/auth.js'
@@ -20,4 +20,5 @@ excelRoute.post('/', auth, upload.single('file'), postexceldata)
 excelRoute.get('/all',auth, getAllexceldata)
 excelRoute.get('/',auth, getbyuserdata)
 excelRoute.get('/:id',auth, getSingleexceldata)
+excelRoute.get('/pdf/:excelId/:xlDataId', getPDF)
 
