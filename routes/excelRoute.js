@@ -1,24 +1,33 @@
 import express from 'express'
 import { postexceldata, getAllexceldata, getSingleexceldata, getbyuserdata, getPDF } from '../controllers/excelController.js'
-export const excelRoute = express.Router()
 import multer from 'multer'
 import auth from '../middleware/auth.js'
 
-//multer
+export const excelRoute = express.Router()
+
+// Multer Configuration
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, './public/uploads')
-    },
+    destination: './public/uploads',
     filename: (req, file, cb) => {
-        cb(null, file.originalname)
+        // Delete the previous file
+        if (req.file) {
+            fs.unlinkSync('./public/uploads/' + req.file.filename);
+        }
+
+        // Generate a new filename
+        const newFilename = file.originalname;
+
+        cb(null, newFilename);
     }
-})
+});
 
-const upload = multer({ storage: storage })
 
+const upload = multer({ storage });
+
+// Routes
 excelRoute.post('/', auth, upload.single('file'), postexceldata)
-excelRoute.get('/all',auth, getAllexceldata)
-excelRoute.get('/',auth, getbyuserdata)
-excelRoute.get('/:id',auth, getSingleexceldata)
+excelRoute.get('/all', auth, getAllexceldata)
+excelRoute.get('/', auth, getbyuserdata)
+excelRoute.get('/:id', auth, getSingleexceldata)
 excelRoute.get('/pdf/:excelId/:xlDataId', getPDF)
 

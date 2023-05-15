@@ -5,7 +5,6 @@ import path from "path";
 import { fileURLToPath } from 'url';
 import pdf from 'html-pdf';
 
-
 const generatePDFBuffer = async (html) => {
   return new Promise((resolve, reject) => {
     pdf.create(html).toBuffer((err, buffer) => {
@@ -28,6 +27,8 @@ export const postexceldata = async (req, res) => {
 
     const existingExcel = await Excel.findOne(search);
     if (existingExcel) {
+      // Delete the existing file
+      fs.unlinkSync(req.file.path);
       return res.json({ status: 200, success: true, msg: 'Stop' });
     }
 
@@ -37,14 +38,14 @@ export const postexceldata = async (req, res) => {
       return Promise.all(xlData.map(async (item) => {
         const mapObj = {
           '[name]': item.FPR_NAME,
+          '[notice_id]': item.PINCODE,
           '[address]': item.ADDRESS1,
-          '[notice_date]': item.NOTICE_DATE,
+          '[notice_date]': item.DATE,
           '[phone]': item.FPR_MOB,
           '[city]': item.CITY,
           '[state]': item.STATE,
         };
-        
-        
+
         const templateFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'htmltemplates', 'template.html');
         let html = fs.readFileSync(templateFilePath, 'utf8');
 
@@ -69,7 +70,9 @@ export const postexceldata = async (req, res) => {
       userId,
       role,
     });
-
+    
+    // Delete the existing file
+    fs.unlinkSync(req.file.path);
     return res.json({ status: 200, success: true, msg: 'running' });
   } catch (error) {
     res.status(500).json({ status: 500, success: false, msg: error.message });
@@ -116,7 +119,7 @@ export const getPDF = async (req, res) => {
     if (!excel) {
       return res.status(404).json({ msg: 'Excel data not found' });
     }
-    
+
     const xlData = excel.xlData.id(xlDataId);
     if (!xlData) {
       return res.status(404).json({ msg: 'xlData not found' });
