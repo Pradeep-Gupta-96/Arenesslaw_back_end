@@ -37,13 +37,37 @@ export const postexceldata = async (req, res) => {
 
       return Promise.all(xlData.map(async (item) => {
         const mapObj = {
-          '[name]': item.FPR_NAME,
-          '[notice_id]': item.PINCODE,
-          '[address]': item.ADDRESS1,
-          '[notice_date]': item.DATE,
-          '[phone]': item.FPR_MOB,
-          '[city]': item.CITY,
-          '[state]': item.STATE,
+          '[Notice_ID]': item.Notice_ID,
+          '[DATE]': item.DATE,
+          '[ACCOUNT]': item.ACCOUNT,
+          '[CARDNO]': item.CARDNO,
+          '[FPR_NAME]': item.FPR_NAME,
+          '[FPR_LD_LIN]': item.FPR_LD_LIN,
+          '[FPR_MOB]': item.FPR_MOB,
+          '[EMBONAME]': item.EMBONAME,
+          '[ADDRESS1]': item.ADDRESS1,
+          '[ADDRESS2]': item.ADDRESS2,
+          '[CITY]': item.CITY,
+          '[STATE]': item.STATE,
+          '[PINCODE]': item.PINCODE,
+          '[NEWRISKREGION]': item.NEWRISKREGION,
+          '[NEW_CURR_BAL]': item.NEW_CURR_BAL,
+          '[RISKCLASS]': item.RISKCLASS,
+          '[BLOCK1]': item.BLOCK1,
+          '[BLOCK2]': item.BLOCK2,
+          '[ZONE]': item.ZONE,
+          '[SENDER]': item.SENDER,
+          '[BKT]': item.BKT,
+          '[MOBILEPHONE_HOME]': item.MOBILEPHONE_HOME,
+          '[TRIGGER]': item.TRIGGER,
+          '[ACTIVITY]': item.ACTIVITY,
+          '[STAGE]': item.STAGE,
+          '[DPI_Amount]': item.DPI_Amount,
+          '[Cur_Bal]': item.Cur_Bal,
+          '[Notice_Amount_total]': item.Notice_Amount_total,
+          '[E_mail]': item.E_mail,
+          '[REF_NO]': item.REF_NO,
+          '[NOTICE_DATE]': item.NOTICE_DATE,
         };
 
         const templateFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'htmltemplates', 'template.html');
@@ -70,7 +94,7 @@ export const postexceldata = async (req, res) => {
       userId,
       role,
     });
-    
+
     // Delete the existing file
     fs.unlinkSync(req.file.path);
     return res.json({ status: 200, success: true, msg: 'running' });
