@@ -1,6 +1,6 @@
 import express from "express";
-import { sendemail } from "../controllers/noticeController.js";
+import { sendEmail } from "../controllers/noticeController.js";
 export const noticeRouter=express.Router()
 
 
-noticeRouter.put('/sendemail/:id',sendemail)
+noticeRouter.put('/sendemail/:id',sendEmail)
