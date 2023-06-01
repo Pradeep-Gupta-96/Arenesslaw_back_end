@@ -15,8 +15,8 @@ export const sendEmail = async (req, res) => {
       host: 'smtp.ethereal.email',
       port: 587,
       auth: {
-        user: 'kayleigh.schmidt65@ethereal.email',
-        pass: '1DgvW5SNAbrkXfQu9A'
+        user: 'elliott.haley@ethereal.email',
+        pass: 'eSUuNtY62Bm4RjGKd7'
     }
     });
 
@@ -32,7 +32,7 @@ export const sendEmail = async (req, res) => {
       // Generate short link
       const shortLink = await generateShortLink(bitly, pdfUrl)
       const mailOptions = {
-        from: 'kayleigh.schmidt65@ethereal.email',
+        from: 'elliott.haley@ethereal.email',
         to: data.E_mail,
         subject: 'Friendly Reminder: Outstanding Payment Due',
         text: 'Node.js testing mail for Areness',

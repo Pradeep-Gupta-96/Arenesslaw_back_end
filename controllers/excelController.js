@@ -32,10 +32,10 @@ export const postexceldata = async (req, res) => {
       return res.json({ status: 200, success: true, msg: 'Stop' });
     }
 
-    const updatedXlDataPromises = sheetNamelist.map(async (sheetName) => {
+  
+    const processSheetData = async (sheetName) => {
       const xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-      return Promise.all(xlData.map(async (item) => {
+      const updatedXlData = await Promise.all(xlData.map(async (item) => {
         const mapObj = {
           '[Notice_ID]': item.Notice_ID,
           '[DATE]': item.DATE,
@@ -82,9 +82,10 @@ export const postexceldata = async (req, res) => {
         item.pdfBuffer = await generatePDFBuffer(html);
         return item;
       }));
-    });
+      return updatedXlData;
+    };
 
-    const updatedXlDataArrays = await Promise.all(updatedXlDataPromises);
+    const updatedXlDataArrays = await Promise.all(sheetNamelist.map(processSheetData));
     const updatedXlData = [].concat(...updatedXlDataArrays);
 
     await Excel.insertMany({
