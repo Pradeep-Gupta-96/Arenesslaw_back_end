@@ -21,7 +21,6 @@ const emailTemplatee = (data) => {
 				text-decoration: none;
 				vertical-align: top;
 			}
-	
 		</style>
 	</head>
 	<body>

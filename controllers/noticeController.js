@@ -36,7 +36,7 @@ export const sendEmail = async (req, res) => {
         to: data.E_mail,
         subject: 'Friendly Reminder: Outstanding Payment Due',
         text: 'Node.js testing mail for Areness',
-        html: emailInfo(shortLink),
+        html: emailInfo(shortLink), // sanding html data and short link
         attachments: [
           {
             filename: 'Notice.pdf',

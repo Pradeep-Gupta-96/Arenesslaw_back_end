@@ -53,6 +53,9 @@ const emailtempSchema = new mongoose.Schema({
         type: String,
 
     },
+    username:{
+        type:String,
+    },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

@@ -10,9 +10,11 @@ import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import path from 'path'
 import { emailtempRoute } from "./routes/emailtempRoute.js";
+import { emailscriptRoute } from "./routes/emaiscriptRoute.js";
 const app = express()
-app.use(bodyParser.urlencoded({ extended: true,parameterLimit:10000,limit:"500MB" }))
-app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: true, limit: "500MB" }));
+app.use(express.json());
+
 app.use(cors())
 
 
@@ -25,6 +27,8 @@ app.use("/user", userRouter)
 app.use("/excel", excelRoute)
 app.use("/notice", noticeRouter)
 app.use("/emailtemp", emailtempRoute)
+app.use("/emailscript", emailscriptRoute)
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 app.use(express.static(path.join(__dirname, 'public')))
