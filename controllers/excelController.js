@@ -19,7 +19,7 @@ const generatePDFBuffer = async (html) => {
 
 export const postexceldata = async (req, res) => {
   try {
-    const { filename, template, role } = req.body;
+    const { filename, template, role, username } = req.body;
     const userId = req.userId;
     const workbook = XLSX.readFile(req.file.path);
     const sheetNamelist = workbook.SheetNames;
@@ -32,7 +32,7 @@ export const postexceldata = async (req, res) => {
       return res.json({ status: 200, success: true, msg: 'Stop' });
     }
 
-  
+
     const processSheetData = async (sheetName) => {
       const xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
       const updatedXlData = await Promise.all(xlData.map(async (item) => {
@@ -70,7 +70,7 @@ export const postexceldata = async (req, res) => {
           '[NOTICE_DATE]': item.NOTICE_DATE,
         };
 
-        const templateFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'htmltemplates', 'template.html');
+        const templateFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'htmltemplates', `${username}.html`);
         let html = fs.readFileSync(templateFilePath, 'utf8');
 
         Object.keys(mapObj).forEach((key) => {

@@ -2,123 +2,77 @@ import Emailtemp from "../models/emailtemp.js"
 import emailTemplatee from "../Templates/email.template.js";
 import pdf from 'html-pdf'
 import fs from 'fs'
-import { error } from "console";
+import path from 'path'
 
-
-export const postemailtempdata = async (req, res) => {
+const createNewHTMLFile = async (htmlContent, folderPath, filename) => {
+    const filepath = path.join(folderPath, filename);
     try {
-        const { title,
-            subtitle,
-            noticeid,
-            noticeidEg,
-            noticedate,
-            noticedateEg,
-            to,
-            address,
-            subject,
-            subjecttitle,
-            ContentInner,
-            ContentFooter,
-            username,
-            role } = req.body;
-        const userId = req.userId
-        const imagePath = req.file ? `/${req.file.path}` : null;
-        console.log(imagePath)
-
-        const userexist = await Emailtemp.findOne({ username })
-        if (!userexist) {
-            const emailtemp = new Emailtemp({
-                title,
-                subtitle,
-                noticeid,
-                noticeidEg,
-                noticedate,
-                noticedateEg,
-                to,
-                address,
-                subject,
-                subjecttitle,
-                ContentInner,
-                ContentFooter,
-                username,
-                role,
-                userId,
-                imagePath
-            });
-            await emailtemp.save();
-            return res.status(200).json(emailtemp);
-        }
-        return res.status(400).json({ message: "this user is already temp created" });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
-    }
-};
-
-export const getemailtempdata = async (req, res) => {
-    try {
-        const Data = await Emailtemp.find();
-
-        const pdfPromises = Data.map((item) => {
-            const value = {
-                title: item.title,
-                subtitle: item.subtitle,
-                noticeid: item.noticeid,
-                noticeidEg: item.noticeidEg,
-                noticedate: item.noticedate,
-                noticedateEg: item.noticedateEg,
-                to: item.to,
-                address: item.address,
-                subject: item.subject,
-                subjecttitle: item.subjecttitle,
-                ContentInner: item.ContentInner,
-                ContentFooter: item.ContentFooter,
-                role: item.role,
-                userId: item.userId,
-                imagePath: item.imagePath
-            };
-
-            const emailHtml = emailTemplatee(value);
-
-            // creating a sample template in html form
-            const CreatenewHTMLfile = async (htmlContent, folderPath, filename) => {
-                const filepath = path.join(folderPath, filename)
-                await fs.writeFile(filepath, htmlContent, (err) => {
-                    if (err) {
-                        console.error('error creating html file', err)
-                    } else {
-                        console.log('HTML file created successfully', filepath)
-                    }
-                })
-            }
-            const filepath = "./htmltemplates"
-            const filename = "template.html"
-            CreatenewHTMLfile(emailHtml, filepath, filename)
-
-            //creating sample pdf for demo
-            const options = { format: "A4" };
-            return new Promise((resolve, reject) => {
-                pdf.create(emailHtml, options).toBuffer((error, buffer) => {
-                    if (error) {
-                        console.log(error);
-                        reject('Error generating PDF');
-                    }
-                    resolve(buffer);
-                });
-            });
-        });
-
-        const buffers = await Promise.all(pdfPromises);
-        const mergedBuffer = Buffer.concat(buffers);
-
-        res.setHeader('Content-Type', 'application/pdf');
-        return res.status(200).send(mergedBuffer);
-
+      await fs.promises.writeFile(filepath, htmlContent);
+      console.log('HTML file created successfully:', filepath);
     } catch (error) {
-        res.status(500).json({ msg: error.message });
+      console.error('Error creating HTML file:', error);
     }
-};
+  };
+  
+  export const postEmailTempData = async (req, res) => {
+    try {
+      const {
+        title,
+        subtitle,
+        noticeid,
+        noticeidEg,
+        noticedate,
+        noticedateEg,
+        to,
+        address,
+        subject,
+        subjecttitle,
+        ContentInner,
+        ContentFooter,
+        username,
+        role,
+      } = req.body;
+      const userId = req.userId;
+      const imagePath = req.file ? `/${req.file.path}` : null;
+      console.log(imagePath);
+  
+      const userExist = await Emailtemp.findOne({ username });
+      if (userExist) {
+        return res.status(400).json({ message: "This user is already a temp created" });
+      }
+  
+      const emailtemp = new Emailtemp({
+        title,
+        subtitle,
+        noticeid,
+        noticeidEg,
+        noticedate,
+        noticedateEg,
+        to,
+        address,
+        subject,
+        subjecttitle,
+        ContentInner,
+        ContentFooter,
+        username,
+        role,
+        userId,
+        imagePath,
+      });
+  
+      await emailtemp.save();
+  
+      const emailHtml = emailTemplatee(emailtemp);
+      const filepath = "./htmltemplates";
+      const filename = `${username}.html`;
+      await createNewHTMLFile(emailHtml, filepath, filename);
+  
+      return res.status(200).json(emailtemp);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
 
 
 export const getmailtempdataforupdate = async (req, res) => {
@@ -144,18 +98,35 @@ export const getmailtempbyid = async (req, res) => {
     }
 }
 
-export const updatemailtempdata = async (req, res) => {
+const updateHTMLFile = async (htmlContent, folderPath, filename) => {
+    const filepath = path.join(folderPath, filename);
     try {
-        const id = req.params.id
-        const item = await Emailtemp.findByIdAndUpdate(id, req.body, {
-            new: true
-        })
-        return res.status(200).json(item)
+      await fs.promises.writeFile(filepath, htmlContent);
+      console.log('HTML file updated successfully:', filepath);
     } catch (error) {
-        res.status(500).json({ msg: error.message })
+      console.error('Error updating HTML file:', error);
     }
-}
-
+  };
+  
+  export const updateMailTempData = async (req, res) => {
+    try {
+      const id = req.params.id;
+      const updatedData = req.body;
+      const item = await Emailtemp.findByIdAndUpdate(id, updatedData, {
+        new: true
+      });
+  
+      const emailHtml = emailTemplatee(item);
+      const filepath = "./htmltemplates";
+      const filename = `${item.username}.html`;
+      await updateHTMLFile(emailHtml, filepath, filename);
+  
+      return res.status(200).json(item);
+    } catch (error) {
+      res.status(500).json({ msg: error.message });
+    }
+  };
+  
 
 export const viewpdf = async (req, res) => {
     try {

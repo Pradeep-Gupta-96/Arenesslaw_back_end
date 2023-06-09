@@ -1,21 +1,27 @@
 import express from "express";
 import multer from "multer";
-import { getemailtempdata, postemailtempdata, getmailtempdataforupdate, updatemailtempdata, getmailtempbyid, viewpdf, delettemp } from "../controllers/emailtempController.js";
+import {
+  postEmailTempData,
+  getmailtempdataforupdate,
+  updateMailTempData,
+  getmailtempbyid,
+  viewpdf,
+  delettemp
+} from "../controllers/emailtempController.js";
 import auth from "../middleware/auth.js";
 export const emailtempRoute = express.Router()
 
-
 //multer
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, './emaillogo/uploads')
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.originalname)
-    }
+  destination: (req, file, cb) => {
+    cb(null, './emaillogo/uploads')
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+  }
 })
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB (in bytes)
@@ -31,12 +37,11 @@ const handleMulterError = (err, req, res, next) => {
   next(err);
 };
 
-emailtempRoute.post('/', auth, upload.single('Emaillogo'), postemailtempdata)
-emailtempRoute.get('/', auth, getemailtempdata)  //html with pdf
+emailtempRoute.post('/', auth, upload.single('Emaillogo'), postEmailTempData)
 emailtempRoute.get('/viewpdf/:id', auth, viewpdf)
-emailtempRoute.delete('/deletpdf/:id',auth, delettemp)
+emailtempRoute.delete('/deletpdf/:id', auth, delettemp)
 emailtempRoute.get('/data', auth, getmailtempdataforupdate)
 emailtempRoute.get('/data/:id', auth, getmailtempbyid)
-emailtempRoute.put('/:id', auth, upload.single('Emaillogo'), updatemailtempdata)
+emailtempRoute.put('/:id', auth, upload.single('Emaillogo'), updateMailTempData)
 
 emailtempRoute.use(handleMulterError);

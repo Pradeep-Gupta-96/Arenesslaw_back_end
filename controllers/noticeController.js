@@ -1,42 +1,44 @@
 import { createTransport } from 'nodemailer';
 import Excel from '../models/excel.js';
-import emailInfo from '../mailinfo/mail_info.js';
 import { BitlyClient } from 'bitly';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const transport = createTransport({
+  host: 'smtp.ethereal.email',
+  port: 587,
+  auth: {
+      user: 'hazle.deckow51@ethereal.email',
+      pass: 'Wy3qBXmjrQvPSwFYqP'
+  }
+});
 
 export const sendEmail = async (req, res) => {
   try {
     const id = req.params.id;
+    const { username } = req.body;
     const excelData = await Excel.findByIdAndUpdate(id, req.body, {
       new: true
     });
 
-
-    const transport = createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      auth: {
-        user: 'paula32@ethereal.email',
-        pass: 'ARvAGjSNnYf3cHggMh'
-      }
-    });
-
-
-    // Initialize Bit.ly client
     const accessToken = 'ebae410e55a245607c620b6de56f10226dd3c8fa';
     const bitly = new BitlyClient(accessToken);
 
     const mailPromises = excelData.xlData.map(async (data) => {
-      const pdfUrl = `http://localhost:4000/excel/pdf/${id}/${data._id}`
+      const pdfUrl = `http://localhost:4000/excel/pdf/${id}/${data._id}`;
+      const shortLink = await generateShortLink(bitly, pdfUrl);
+      const html = generateEmailHtml(username, shortLink);
 
-
-      // Generate short link
-      const shortLink = await generateShortLink(bitly, pdfUrl)
       const mailOptions = {
-        from: 'paula32@ethereal.email',
+        from: 'hazle.deckow51@ethereal.email',
         to: data.E_mail,
         subject: 'Friendly Reminder: Outstanding Payment Due',
         text: 'Node.js testing mail for Areness',
-        html: emailInfo(shortLink), // sanding html data and short link
+        html: html,
         attachments: [
           {
             filename: 'Notice.pdf',
@@ -59,11 +61,22 @@ export const sendEmail = async (req, res) => {
 const generateShortLink = async (bitly, longUrl) => {
   try {
     const response = await bitly.shorten(longUrl);
-    return response.data.url;
+    return response.url;
   } catch (error) {
     return longUrl;
   }
 };
+
+const generateEmailHtml = (username, shortLink) => {
+  const templateFilePath = path.join(__dirname, '..', 'htmlscript', `${username}.html`);
+  const htmlTemplate = fs.readFileSync(templateFilePath, 'utf8');
+
+
+  
+  const html = htmlTemplate.replace('{{shortLink}}',`<a href="${shortLink}">click here for pdf link</a>`);
+  return html;
+};
+
 
 
 
