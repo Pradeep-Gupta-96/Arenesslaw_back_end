@@ -1,9 +1,10 @@
 import { createTransport } from 'nodemailer';
 import Excel from '../models/excel.js';
-import { BitlyClient } from 'bitly';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { generateShortLink } from './urlController.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,9 +13,9 @@ const transport = createTransport({
   host: 'smtp.ethereal.email',
   port: 587,
   auth: {
-      user: 'hazle.deckow51@ethereal.email',
-      pass: 'Wy3qBXmjrQvPSwFYqP'
-  }
+    user: 'gonzalo72@ethereal.email',
+    pass: 'rJewq2XDwxvqZce3Sf'
+}
 });
 
 export const sendEmail = async (req, res) => {
@@ -25,16 +26,14 @@ export const sendEmail = async (req, res) => {
       new: true
     });
 
-    const accessToken = 'ebae410e55a245607c620b6de56f10226dd3c8fa';
-    const bitly = new BitlyClient(accessToken);
-
     const mailPromises = excelData.xlData.map(async (data) => {
       const pdfUrl = `http://localhost:4000/excel/pdf/${id}/${data._id}`;
-      const shortLink = await generateShortLink(bitly, pdfUrl);
-      const html = generateEmailHtml(username, shortLink);
+      const shortLink = await generateShortLink(pdfUrl);
+      const ShortUrl=`http://localhost:4000/url/${shortLink}`
+      const html = generateEmailHtml(username, ShortUrl);
 
       const mailOptions = {
-        from: 'hazle.deckow51@ethereal.email',
+        from: 'gonzalo72@ethereal.email',
         to: data.E_mail,
         subject: 'Friendly Reminder: Outstanding Payment Due',
         text: 'Node.js testing mail for Areness',
@@ -58,26 +57,14 @@ export const sendEmail = async (req, res) => {
   }
 };
 
-const generateShortLink = async (bitly, longUrl) => {
-  try {
-    const response = await bitly.shorten(longUrl);
-    return response.url;
-  } catch (error) {
-    return longUrl;
-  }
-};
 
-const generateEmailHtml = (username, shortLink) => {
+
+const generateEmailHtml = (username, ShortUrl) => {
   const templateFilePath = path.join(__dirname, '..', 'htmlscript', `${username}.html`);
   const htmlTemplate = fs.readFileSync(templateFilePath, 'utf8');
-
-
-  
-  const html = htmlTemplate.replace('{{shortLink}}',`<a href="${shortLink}">click here for pdf link</a>`);
+  const html = htmlTemplate.replace('{{shortLink}}', `<a href="${ShortUrl}">${ShortUrl}</a>`);
   return html;
 };
-
-
 
 
 

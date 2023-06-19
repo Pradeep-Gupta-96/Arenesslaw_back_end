@@ -11,6 +11,7 @@ import { dirname } from 'path'
 import path from 'path'
 import { emailtempRoute } from "./routes/emailtempRoute.js";
 import { emailscriptRoute } from "./routes/emaiscriptRoute.js";
+import { urlRouter } from "./routes/urlRoute.js";
 const app = express()
 app.use(express.urlencoded({ extended: true, limit: "500MB" }));
 app.use(express.json());
@@ -28,6 +29,7 @@ app.use("/excel", excelRoute)
 app.use("/notice", noticeRouter)
 app.use("/emailtemp", emailtempRoute)
 app.use("/emailscript", emailscriptRoute)
+app.use('/url',urlRouter)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
