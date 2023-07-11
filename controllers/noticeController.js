@@ -13,8 +13,8 @@ const transport = createTransport({
   host: 'smtp.ethereal.email',
   port: 587,
   auth: {
-    user: 'gonzalo72@ethereal.email',
-    pass: 'rJewq2XDwxvqZce3Sf'
+    user: 'blaze53@ethereal.email',
+    pass: 'Rs6D3qEG3fT1zHMJV1'
 }
 });
 
@@ -33,7 +33,7 @@ export const sendEmail = async (req, res) => {
       const html = generateEmailHtml(username, ShortUrl);
 
       const mailOptions = {
-        from: 'gonzalo72@ethereal.email',
+        from: 'blaze53@ethereal.email',
         to: data.E_mail,
         subject: 'Friendly Reminder: Outstanding Payment Due',
         text: 'Node.js testing mail for Areness',
@@ -57,7 +57,7 @@ export const sendEmail = async (req, res) => {
   }
 };
 
-
+ 
 
 const generateEmailHtml = (username, ShortUrl) => {
   const templateFilePath = path.join(__dirname, '..', 'htmlscript', `${username}.html`);

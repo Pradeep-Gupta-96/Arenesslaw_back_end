@@ -32,7 +32,7 @@ const emailTemplatee = (data) => {
 					<h3
 						style="text-align: right;font-style: normal;font-weight: bold;font-size: 25pt;font-family: DejaVu Serif Condensed;color: #405189;line-height: 20px;border-bottom: 2px solid #405189;padding-bottom: 10px;">
 						${data.title}</h3>
-					<h4
+						<h4 
 						style="text-align: right;font-style: normal;font-weight: bold;font-size: 18pt;font-family: DejaVu Serif Condensed;color: #676464;padding: 10px 0px;">
 						${data.subtitle}</h4>
 				</div>
