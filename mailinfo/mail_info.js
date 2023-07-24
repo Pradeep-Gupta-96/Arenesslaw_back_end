@@ -3,7 +3,7 @@ const emailInfo =  (data) => {
     return `
     <div>
     <div>${data.Subject}${data.SubjectContent}</div>
-        <div>Dear ${data.CustomerName},</div>
+        <div>${data.CustomerName},</div>
         <div>${data.ContentInner}</div>
         <div>${data.ContentFooter} </div>
        </div>`

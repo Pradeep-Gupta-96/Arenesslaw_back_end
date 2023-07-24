@@ -5,17 +5,17 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { generateShortLink } from './urlController.js';
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const transport = createTransport({
-  host: 'smtp.ethereal.email',
+  host: "smtp.gmail.com",
   port: 587,
+  secure: false,
   auth: {
-    user: 'blaze53@ethereal.email',
-    pass: 'Rs6D3qEG3fT1zHMJV1'
-}
+    user: 'Mrlucifer9651@gmail.com',
+    pass: process.env.PASS
+  }
 });
 
 export const sendEmail = async (req, res) => {
@@ -28,12 +28,14 @@ export const sendEmail = async (req, res) => {
 
     const mailPromises = excelData.xlData.map(async (data) => {
       const pdfUrl = `http://localhost:4000/excel/pdf/${id}/${data._id}`;
+      const candidatename = data.FPR_NAME
+
       const shortLink = await generateShortLink(pdfUrl);
-      const ShortUrl=`http://localhost:4000/url/${shortLink}`
-      const html = generateEmailHtml(username, ShortUrl);
+      const ShortUrl = `http://localhost:4000/url/${shortLink}`
+      const html = generateEmailHtml(username, ShortUrl, candidatename);
 
       const mailOptions = {
-        from: 'blaze53@ethereal.email',
+        from: 'Mrlucifer9651@gmail.com',
         to: data.E_mail,
         subject: 'Friendly Reminder: Outstanding Payment Due',
         text: 'Node.js testing mail for Areness',
@@ -57,112 +59,47 @@ export const sendEmail = async (req, res) => {
   }
 };
 
- 
 
-const generateEmailHtml = (username, ShortUrl) => {
+
+const generateEmailHtml = (username, ShortUrl, candidatename) => {
   const templateFilePath = path.join(__dirname, '..', 'htmlscript', `${username}.html`);
   const htmlTemplate = fs.readFileSync(templateFilePath, 'utf8');
-  const html = htmlTemplate.replace('{{shortLink}}', `<a href="${ShortUrl}">${ShortUrl}</a>`);
+  let html = htmlTemplate.replace('{{shortLink}}', `<a href="${ShortUrl}">${ShortUrl}</a>`);
+  html = html.replace('[FPR_NAME]', candidatename);
+  // html = htmlTemplate.replace('[Amount]', amount);
+  // html = htmlTemplate.replace('[Provide details of the products or services provided]', productDetails);
+  // html = htmlTemplate.replace('[Contact Information]', contactInfo);
   return html;
 };
 
 
+/// this is for sms sending
 
-
-//incorporates SendGrid for email sending, Twilio for SMS messaging,
-// and WhatsApp Business API for sending WhatsApp messages. It also includes functionality to receive SMS and WhatsApp messages
-/**
-import { createTransport } from 'nodemailer';
-import Excel from '../models/excel.js';
-import emailInfo from '../mailinfo/mail_info.js';
-import { TwilioClient } from 'twilio'; // Twilio library for SMS
-import { WhatsAppClient } from 'whatsapp'; // WhatsApp library for sending/receiving messages
-import { Client as SendGridClient } from '@sendgrid/mail'; // SendGrid library for email
-
-export const sendEmail = async (req, res) => {
+export const sendSMS = async (req, res) => {
   try {
-    const id = req.params.id;
-    const excelData = await Excel.findByIdAndUpdate(id, req.body, { new: true });
 
-    const sendGridApiKey = 'your_sendgrid_api_key'; // Placeholder for SendGrid API key
-    const sendGridClient = new SendGridClient();
-    sendGridClient.setApiKey(sendGridApiKey);
+    // 
+    const { username, password, type, dlr, destination, source, message } = req.query;
+    console.log(req.query)
 
-    const twilioAccountSid = 'your_twilio_account_sid'; // Placeholder for Twilio credentials
-    const twilioAuthToken = 'your_twilio_auth_token';
-    const twilioClient = new TwilioClient(twilioAccountSid, twilioAuthToken);
+    // Send SMS request
+    // Bulk Http Link : 
+    // http://sms6.rmlconnect.net:8080/bulksms/bulksms?username=xxxxxxxx&password=xxxxxx&type=0&dlr=1&destination=xxxxxxxxxx&source=Demo&message=Demo%20Message
+    // const response = await axios.get('http://sms6.rmlconnect.net:8080/bulksms/bulksms', {
+    //   params: {
+    //     username,
+    //     password,
+    //     type,
+    //     dlr,
+    //     destination,
+    //     source,
+    //     message,
+    //   },
+    // });
+    // res.status(200).json({ success: true, message: 'SMS sent successfully' });
 
-    const whatsappApiKey = 'your_whatsapp_api_key'; // Placeholder for WhatsApp credentials
-    const whatsappClient = new WhatsAppClient(whatsappApiKey);
-
-    const mailPromises = excelData.xlData.map(async (data) => {
-      const pdfUrl = `http://localhost:4000/excel/pdf/${id}/${data._id}`;
-
-      // Send email via SendGrid
-      const mailOptions = {
-        from: 'example@example.com',
-        to: data.E_mail,
-        subject: 'Friendly Reminder: Outstanding Payment Due',
-        text: 'Node.js testing mail for Areness',
-        html: emailInfo(pdfUrl),
-        attachments: [
-          {
-            filename: 'Notice.pdf',
-            content: data.pdfBuffer,
-          },
-        ],
-      };
-      await sendGridClient.send(mailOptions);
-
-      // Send SMS via Twilio
-      const smsMessage = `Friendly Reminder: Outstanding Payment Due. Link: ${pdfUrl}`;
-      await twilioClient.messages.create({
-        body: smsMessage,
-        from: 'your_twilio_phone_number',
-        to: data.PhoneNumber,
-      });
-
-      // Send WhatsApp message
-      const whatsappMessage = `Friendly Reminder: Outstanding Payment Due. Link: ${pdfUrl}`;
-      await whatsappClient.messages.create({
-        body: whatsappMessage,
-        from: 'your_whatsapp_phone_number',
-        to: data.WhatsAppNumber,
-      });
-    });
-
-    await Promise.all(mailPromises);
-
-    return res.status(200).json({ message: 'Saved' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ success: false, message: 'An error occurred while sending SMS' });
   }
-};
-
-// Twilio webhook for receiving SMS
-export const receiveSMS = async (req, res) => {
-  try {
-    const { body, from } = req.body;
-    // Process received SMS
-
-    return res.status(200).send();
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-};
-
-// WhatsApp webhook for receiving messages
-export const receiveWhatsAppMessage = async (req, res) => {
-  try {
-    const { body, from } = req.body;
-    // Process received WhatsApp message
-
-    return res.status(200).send();
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-};
- */
+}
