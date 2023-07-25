@@ -19,7 +19,7 @@ const generatePDFBuffer = async (html) => {
 
 export const postexceldata = async (req, res) => {
   try {
-    const { filename, template, role, username } = req.body;
+    const { comapny, username, role, filename, template } = req.body;
     const userId = req.userId;
     const workbook = XLSX.readFile(req.file.path);
     const sheetNamelist = workbook.SheetNames;
@@ -89,11 +89,13 @@ export const postexceldata = async (req, res) => {
     const updatedXlData = [].concat(...updatedXlDataArrays);
 
     await Excel.insertMany({
+      comapny,
+      username,
+      role,
       filename,
       template,
       xlData: updatedXlData,
       userId,
-      role,
     });
 
     // Delete the existing file
@@ -105,6 +107,21 @@ export const postexceldata = async (req, res) => {
 };
 
 
+export const getdata_client_user = async (req, res) => {
+  try {
+    const { company, username } = req.query;
+    const existingData = await Excel.find({ company, username });
+
+    if (!existingData || existingData.length === 0) {
+      return res.status(404).json({ message: "Data not found" });
+    }
+
+    return res.status(200).json({ message: existingData });
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred on the server side" });
+  }
+};
+
 
 export const getAllexceldata = async (req, res) => {
   try {
@@ -114,6 +131,8 @@ export const getAllexceldata = async (req, res) => {
     res.status(500).json({ msg: error.message })
   }
 }
+
+
 
 export const getbyuserdata = async (req, res) => {
   try {

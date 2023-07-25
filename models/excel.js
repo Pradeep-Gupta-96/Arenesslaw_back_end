@@ -39,8 +39,11 @@ const xlDataSchema = new mongoose.Schema({
 
 // Create a Mongoose schema for the Excel document
 const excelSchema = new mongoose.Schema({
+    company:String,
+    username:String,
     filename: String,
     template: String,
+    role: String,
     emailformail: String,
     xlData: [xlDataSchema],
     userId: {
@@ -48,14 +51,9 @@ const excelSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    role: {
-        type: String,
-        required: true
-    }
 }, { timestamps: true });
 
 const Excel = new mongoose.model("Excel", excelSchema)
-
 export default Excel
 
 

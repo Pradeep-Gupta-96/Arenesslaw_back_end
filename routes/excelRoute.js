@@ -1,5 +1,5 @@
 import express from 'express'
-import { postexceldata, getAllexceldata, getSingleexceldata, getbyuserdata, getPDF } from '../controllers/excelController.js'
+import { postexceldata, getAllexceldata, getSingleexceldata, getbyuserdata, getPDF, getdata_client_user } from '../controllers/excelController.js'
 import multer from 'multer'
 import auth from '../middleware/auth.js'
 
@@ -26,6 +26,7 @@ const upload = multer({ storage });
 
 // Routes
 excelRoute.post('/', auth, upload.single('file'), postexceldata)
+excelRoute.get('/client_user', auth, getdata_client_user)
 excelRoute.get('/all', auth, getAllexceldata)
 excelRoute.get('/', auth, getbyuserdata)
 excelRoute.get('/:id', auth, getSingleexceldata)
