@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken"
 import User from "../models/users.js"
 import bcrypt from 'bcrypt'
+
 import nodemailer from "nodemailer"
 
 export const signup = async (req, res) => {
@@ -33,10 +34,12 @@ export const signup = async (req, res) => {
 export const signin = async (req, res) => {
     try {
         const { email, password } = req.body
+        
         if (!email || !password) {
             return res.status(404).json("please fill all details")
         } else {
-            const userexit = await User.findOne({ email: email })
+            const lowerCaseEmail = email.toLowerCase(); // Convert email to lowercase
+        const userexit = await User.findOne({ email: lowerCaseEmail });
             if (!userexit) {
                 return res.status(400).json("invalid")
             } else {
@@ -171,3 +174,18 @@ export const updatePassword = async (req, res) => {
     }
 }
 
+
+
+export const userdetails = async (req, res) => {
+    try {
+      const id = req.params.id
+      const data = await User.findById(id)
+      return res.status(200).json({ message:data });
+    } catch (error) {
+      res.status(500).json({ msg: error.message })
+    }
+  }
+  
+  
+  
+  
