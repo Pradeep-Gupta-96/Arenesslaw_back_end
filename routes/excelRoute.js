@@ -29,5 +29,3 @@ excelRoute.post('/', auth, upload.single('file'), postexceldata)
 excelRoute.get('/',auth, getAllexceldata)
 excelRoute.get('/:id',auth, exponedexcelldata)
 excelRoute.get('/details/:xlid/:singleid',auth,DetailsPage)
-
-

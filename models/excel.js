@@ -40,6 +40,7 @@ const xlDataSchema = new mongoose.Schema({
 // Create a Mongoose schema for the Excel document
 const excelSchema = new mongoose.Schema({
     filename:String,
+    Bank:String,
     xlData: [xlDataSchema],
     userId: {
         type: mongoose.Schema.Types.ObjectId,

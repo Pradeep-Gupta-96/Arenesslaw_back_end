@@ -4,14 +4,15 @@ import fs from 'fs';
 import User from "../models/users.js"
 import bcrypt from 'bcrypt'; // Import bcrypt library
 
-
 export const postexceldata = async (req, res) => {
   try {
-    const { filename } = req.body
+    const { filename, Bank } = req.body;
     const userId = req.userId;
     const workbook = XLSX.readFile(req.file.path);
     const sheetNamelist = workbook.SheetNames;
 
+    // Define a batch size for bulk insertion
+    const batchSize = 100;
 
     const processSheetData = async (sheetName) => {
       const xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
@@ -24,62 +25,42 @@ export const postexceldata = async (req, res) => {
     const updatedXlDataArrays = await Promise.all(sheetNamelist.map(processSheetData));
     const updatedXlData = [].concat(...updatedXlDataArrays);
 
-     // Iterate through the xlData and create a new user for each item
-     for (const item of updatedXlData) {
-      try {
-        const hashpassword = await bcrypt.hash(item.Account_No || 'User1234', 10); // Hash the password
-        const newUser = new User({
-          username: item.Name,
-          email: item.To ? item.To.toLowerCase() : `User1234@example.com`, // Convert email to lowercase or generate a default email
-          role: 'User',
-          password: hashpassword, // Set a default password if undefined
-          "Mail_Date":item.Mail_Date,
-          "To":item.To,
-          "Serial_Number":item.Serial_Number,
-          "Name":item.Name,
-          "Address":item.Address,
-          "Description_Client":item.Description_Client,
-          "Address_Of_Client":item.Address_Of_Client,
-          "Credit_type":item.Credit_type,
-          "Account_No":item.Account_No,
-          "Cheque_No":item.Cheque_No,
-          "Cheque_Date":item.Cheque_Date,
-          "Cheque_Amount":item.Cheque_Amount,
-          "Cheque_Branch":item.Cheque_Branch,
-          "Cheque_Bouncing":item.Cheque_Bouncing,
-          "Return_Memo":item.Return_Memo,
-          "Our_Bank":item.Our_Bank,
-          "Ecs_Date":item.Ecs_Date,
-          "Ecs_Bank":item.Ecs_Bank,
-          "Ecs_Provider_Name":item.Ecs_Provider_Name,
-          "Overdue_Amount":item.Overdue_Amount,
-          "Overdue_Date":item.Overdue_Date,
-          "Emi_Amount":item.Emi_Amount,
-          "SPOC_Name":item.SPOC_Name,
-          "SPOC_Number":item.SPOC_Number,
-          "SPOC_Email":item.SPOC_Email,
-          "Payment_Link_For_Emi":item.Payment_Link_For_Emi,
-          "Payment_Link_For_Total_Dues":item.Payment_Link_For_Total_Dues,
-          "Date":item.Date,
-          "Short_Link":item.Short_Link,
-          "Mail_Status":item.Mail_Status,
-          "E_mail_Status":item.E_mail_Status,
-        });
+    // Process data in batches
+    for (let i = 0; i < updatedXlData.length; i += batchSize) {
+      const batch = updatedXlData.slice(i, i + batchSize);
+      const batchPromises = batch.map(async (item) => {
+        try {
+          const existingUser = await User.findOne({ username: item.SPOC_Email ? item.SPOC_Email.toLowerCase() : `User1234@example.com` });
+          if (existingUser) {
+            console.log(`User with username ${item.SPOC_Email} already exists. Skipping...`);
+            return;
+          }
+          const hashpassword = await bcrypt.hash("Areness@123", 10);
+          const newUser = new User({
+            username: item.SPOC_Email,
+            email: item.SPOC_Email ? item.SPOC_Email.toLowerCase() : `User1234@example.com`,
+            role: 'User',
+            password: hashpassword,
+            Bank: Bank
+          });
+          await newUser.save();
+        } catch (error) {
+          console.error('Error creating user:', error);
+        }
+      });
 
-        await newUser.save();
-      } catch (error) {
-        console.error('Error creating user:', error);
-      }
+      await Promise.all(batchPromises);
     }
 
+    // Insert data into Excel collection
     await Excel.insertMany({
       filename,
+      Bank,
       xlData: updatedXlData,
       userId,
     });
 
-
-    // Delete the existing file   
+    // Delete the existing file
     fs.unlinkSync(req.file.path);
     return res.json({ status: 200, success: true, msg: 'running' });
   } catch (error) {
@@ -88,26 +69,50 @@ export const postexceldata = async (req, res) => {
 };
 
 
+
 // export const postexceldata = async (req, res) => {
 //   try {
+//     const { filename, Bank } = req.body
 //     const userId = req.userId;
 //     const workbook = XLSX.readFile(req.file.path);
 //     const sheetNamelist = workbook.SheetNames;
 
+
 //     const processSheetData = async (sheetName) => {
 //       const xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-//       return xlData;
+//       const updatedXlData = await Promise.all(xlData.map(async (item) => {
+//         return item;
+//       }));
+//       return updatedXlData;
 //     };
 
-//     const sheetsData = await Promise.all(sheetNamelist.map(processSheetData));
+//     const updatedXlDataArrays = await Promise.all(sheetNamelist.map(processSheetData));
+//     const updatedXlData = [].concat(...updatedXlDataArrays);
 
-//     // Insert each sheet's data as a separate document in the database
-//     for (let i = 0; i < sheetNamelist.length; i++) {
-//       await Excel.create({
-//         xlData: sheetsData[i],
-//         userId,
-//       });
+//     // Iterate through the xlData and create a new user for each item
+//     for (const item of updatedXlData) {
+//       try {
+//         const hashpassword = await bcrypt.hash("Areness@123", 10); // Hash the password
+//         const newUser = new User({
+//           username: item.SPOC_Email,
+//           email: item.SPOC_Email ? item.SPOC_Email.toLowerCase() : `User1234@example.com`, // Convert email to lowercase or generate a default email
+//           role: 'User',
+//           password: hashpassword, // Set a default password if undefined
+//           Bank: Bank
+//         });
+//         await newUser.save();
+//       } catch (error) {
+//         console.error('Error creating user:', error);
+//       }
 //     }
+
+//     await Excel.insertMany({
+//       filename,
+//       Bank,
+//       xlData: updatedXlData,
+//       userId,
+//     });
+
 
 //     // Delete the existing file   
 //     fs.unlinkSync(req.file.path);
@@ -138,9 +143,6 @@ export const exponedexcelldata = async (req, res) => {
   }
 }
 
-
-
-
 export const DetailsPage = async (req, res) => {
   try {
     const { xlid, singleid } = req.params;
@@ -149,7 +151,7 @@ export const DetailsPage = async (req, res) => {
       return res.status(404).json({ msg: 'Excel data not found' });
     }
     const xlData = data.xlData.id(singleid);
-return res.status(200).json({ message:xlData });
+    return res.status(200).json({ message: xlData });
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
