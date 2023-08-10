@@ -6,7 +6,8 @@ import bcrypt from 'bcrypt'; // Import bcrypt library
 
 export const postexceldata = async (req, res) => {
   try {
-    const { filename, Bank } = req.body;
+    const { filename, Bank, NoticeType } = req.body;
+    console.log(req.body)
     const userId = req.userId;
     const workbook = XLSX.readFile(req.file.path);
     const sheetNamelist = workbook.SheetNames;
@@ -37,8 +38,8 @@ export const postexceldata = async (req, res) => {
           }
           const hashpassword = await bcrypt.hash("Areness@123", 10);
           const newUser = new User({
-            username: item.SPOC_Email,
-            email: item.SPOC_Email ? item.SPOC_Email.toLowerCase() : `User1234@example.com`,
+            username: item.FPR_NAME,
+            email: item.FPR_NAME ? item.FPR_NAME.toLowerCase() : `User1234@sbi.com`,
             role: 'User',
             password: hashpassword,
             Bank: Bank
@@ -56,6 +57,7 @@ export const postexceldata = async (req, res) => {
     await Excel.insertMany({
       filename,
       Bank,
+      NoticeType,
       xlData: updatedXlData,
       userId,
     });
