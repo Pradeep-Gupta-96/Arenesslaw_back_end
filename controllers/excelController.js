@@ -1,8 +1,44 @@
 import Excel from "../models/excel.js";
 import XLSX from 'xlsx';
 import fs from 'fs';
-import User from "../models/users.js"
-import bcrypt from 'bcrypt'; // Import bcrypt library
+import User from "../models/users.js";
+
+
+// Separate user signup logic
+const createUser = async (item) => {
+  try {
+    const existingUser = await User.findOne({ email: item.FPR_NAME });
+
+      // Remove extra spaces from the username and email
+      const cleanedUsername = item.FPR_NAME.trim();
+      const cleanedEmail = item.FPR_NAME.trim();
+    
+    if (!existingUser) {
+      const signupData = {
+        username: cleanedUsername,
+        email: cleanedEmail,
+        role: 'User',
+        password: 'Areness@123'
+      };
+
+      const response = await fetch('http://localhost:4000/user/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(signupData)
+      });
+
+      const responseBody = await response.json();
+      // You might want to handle responseBody based on your needs
+    }
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return { error: error.message };
+  }
+};
+
+
 
 export const postexceldata = async (req, res) => {
   try {
@@ -28,28 +64,12 @@ export const postexceldata = async (req, res) => {
     // Process data in batches
     for (let i = 0; i < updatedXlData.length; i += batchSize) {
       const batch = updatedXlData.slice(i, i + batchSize);
-      const batchPromises = batch.map(async (item) => {
-        try {
-          const existingUser = await User.findOne({ email: item.FPR_NAME ? item.FPR_NAME.toLowerCase() : `User1234@example.com` });
-          if (existingUser) {
-            // console.log(`User with username ${item.FPR_NAME} already exists. Skipping...`);
-            return;
-          }
-          const hashpassword = await bcrypt.hash("Areness@123", 10);
-          const newUser = new User({
-            username: item.FPR_NAME,
-            email: item.FPR_NAME ? item.FPR_NAME.toLowerCase() : `User1234@sbi.com`,
-            role: 'User',
-            password: hashpassword,
-            Bank: Bank
-          });
-          await newUser.save();
-        } catch (error) {
-          console.error('Error creating user:', error);
-        }
-      });
 
-      await Promise.all(batchPromises);
+      // Create an array to store promises for signup
+      const signupPromises = batch.map(item => createUser(item));
+
+      // Wait for signup promises to complete
+      const signupResults = await Promise.all(signupPromises);
     }
 
     // Insert data into Excel collection

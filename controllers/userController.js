@@ -4,58 +4,75 @@ import bcrypt from 'bcrypt'
 
 import nodemailer from "nodemailer"
 
+// User signup function
 export const signup = async (req, res) => {
     try {
-        const { username, email, role, password } = req.body
-        if (!username || !email || !role || !password) {
-            return res.status(404).json({ message: "please fill all details" })
-        } else {
-            const userexit = await User.findOne({ email: email })
-            if (userexit) {
-                return res.status(400).json({ message: "user already registerd" })
-            } else {
-                const hashpassword = await bcrypt.hash(password, 10)
-                const user = new User({
-                    username: username,
-                    email: email,
-                    role: role,
-                    password: hashpassword
-                })
-                await user.save()
-                const Tokens = jwt.sign({ user: user.email, id: user._id }, process.env.SECRET_KEY)
-                return res.status(200).json({ users: user, Token: Tokens })
-            }
-        }
+      const { username, email, role, password } = req.body;
+      
+      // Check for missing input fields
+      if (!username || !email || !role || !password) {
+        return res.status(400).json({ success: false, message: "Please fill in all details." });
+      }
+      
+      // Check if user already exists
+      const existingUser = await User.findOne({ email: email });
+      if (existingUser) {
+        return res.status(400).json({ success: false, message: "User already registered." });
+      }
+      
+      // Hash the password
+      const hashpassword = await bcrypt.hash(password, 10);
+      
+      // Create a new user
+      const newUser = new User({
+        username: username,
+        email: email,
+        role: role,
+        password: hashpassword
+      });
+      await newUser.save();
+      
+      // Generate and send JWT token
+      const token = jwt.sign({ user: newUser.email, id: newUser._id }, process.env.SECRET_KEY);
+      return res.status(200).json({ success: true, user: newUser, token: token });
     } catch (error) {
-        res.status(500).json({ message: error })
+      console.error("Error in signup:", error);
+      res.status(500).json({ success: false, message: "An error occurred while signing up." });
     }
-}
+  };
+  
 
-export const signin = async (req, res) => {
+  // User signin function
+  export const signin = async (req, res) => {
     try {
-        const { email, password } = req.body
-        
-        if (!email || !password) {
-            return res.status(404).json("please fill all details")
-        } else {
-            const lowerCaseEmail = email.toLowerCase(); // Convert email to lowercase
-        const userexit = await User.findOne({ email: lowerCaseEmail });
-            if (!userexit) {
-                return res.status(400).json("invalid")
-            } else {
-                const matchpassword = await bcrypt.compare(password, userexit.password)
-                if (!matchpassword) {
-                    return res.status(400).json({ message: "invalid" })
-                } else {
-                    const Tokens = jwt.sign({ user: userexit.email, id: userexit._id }, process.env.SECRET_KEY)
-                    return res.status(200).json({ user: userexit, Token: Tokens })
-                }
-            }
-        }
+      const { email, password } = req.body;
+
+      // Check for missing credentials
+      if (!email || !password) {
+        return res.status(400).json({ success: false, message: "Please provide both email and password." });
+      }
+  
+      // Find the user
+      const user = await User.findOne({ email: email });
+      if (!user) {
+        return res.status(400).json({ success: false, message: "Invalid credentials." });
+      }
+  
+      // Compare passwords
+      const matchPassword = await bcrypt.compare(password, user.password);
+      if (!matchPassword) {
+        return res.status(400).json({ success: false, message: "Invalid credentials." });
+      }
+  
+      // Generate and send JWT token
+      const token = jwt.sign({ user: user.email, id: user._id }, process.env.SECRET_KEY);
+      return res.status(200).json({ success: true, user: user, token: token });
     } catch (error) {
-        res.status(500).json({ message: error })
+      console.error("Error in signin:", error);
+      res.status(500).json({ success: false, message: "An error occurred while signing in." });
     }
-}
+  };
+  
 
 export const resetpass = async (req, res) => {
     try {
