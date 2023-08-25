@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const xlDataSchema = new mongoose.Schema({
     REF_NO: String,
-    DATE: String,
+    DATE: Date,
     ACCOUNT: String,
     CARDNO: String,
     FPR_NAME: String,
@@ -35,6 +35,7 @@ const xlDataSchema = new mongoose.Schema({
     "Short Link": String,
     "SMS Status": String,
     "EMAIL STATUS": String,
+    NoticeType: String,
     excelId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Excel", // Reference the Excel model

@@ -83,6 +83,7 @@ export const postexceldata = async (req, res) => {
     // Create an array of XLData subdocuments with reference to Excel document
     const xlDataSubdocs = updatedXlData.map(item => ({
       ...item,
+      NoticeType,
       excelId: newExcelDocument._id,
     }));
 
@@ -104,7 +105,7 @@ export const postexceldata = async (req, res) => {
 export const getAllexceldata = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Default page is 1
-    const pageSize =20; // Default page size is 10
+    const pageSize = 20; // Default page size is 10
 
     const totalItems = await Excel.countDocuments();
     const totalPages = Math.ceil(totalItems / pageSize);
@@ -163,7 +164,7 @@ export const exportExcelData = async (req, res) => {
     const excelId = req.params.id; // Get the Excel document's _id from the URL parameter
     const FPR_NAME = req.params.query; // Get the username from the URL parameter
     const page = req.query.page || 1;
-   
+
     const pageSize = 20; // Fixed page size
 
     // Calculate the skip value based on the page number and page size
@@ -191,8 +192,6 @@ export const exportExcelData = async (req, res) => {
 };
 
 
-
-
 export const detailsPage = async (req, res) => {
   try {
     const { id } = req.params;
@@ -200,34 +199,63 @@ export const detailsPage = async (req, res) => {
     if (!xlData) {
       return res.status(404).json({ msg: 'Excel data not found' });
     }
-    return res.status(200).json({ message: xlData});
+    return res.status(200).json({ message: xlData });
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
 };
 
 
-export const getPDF = async (req, res) => {
+export const allNoticesOfOneUser = async (req, res) => {
   try {
-    const { excelId, xlDataId } = req.params;
-    const excel = await Excel.findById(excelId);
-    if (!excel) {
-      return res.status(404).json({ msg: 'Excel data not found' });
-    }
+    const account = req.params.account;
 
-    const xlData = excel.xlData.id(xlDataId);
-    if (!xlData) {
-      return res.status(404).json({ msg: 'xlData not found' });
-    }
+    // Find XLData documents that match the account
+    const xlDataQuery = await XLData.find({ ACCOUNT: account });
 
-    if (!xlData.pdfBuffer) {
-      return res.status(404).json({ msg: 'PDF data not found' });
-    }
+    // // Extract the unique excelIds from XLData
+    // const uniqueExcelIds = xlDataQuery.map((item) => item.excelId);
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.send(xlData.pdfBuffer);
+    // // Find Excel documents using the unique excelIds
+    // const excelDocuments = await Excel.find({ _id: { $in: uniqueExcelIds } });
+
+    //  // Extract the unique excelIds from XLData
+    //  const uniqueXLDataIds = excelDocuments.map((item) => item._id);
+   
+    //    // Find XLData documents using the unique id
+    //    const XLDataDocuments = await XLData.find({
+    //     excelId: { $in: uniqueXLDataIds },
+    //     ACCOUNT: account
+    //   });
+
+    return res.status(200).json({ message: xlDataQuery});
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
 };
+
+
+// export const getPDF = async (req, res) => {
+//   try {
+//     const { excelId, xlDataId } = req.params;
+//     const excel = await Excel.findById(excelId);
+//     if (!excel) {
+//       return res.status(404).json({ msg: 'Excel data not found' });
+//     }
+
+//     const xlData = excel.xlData.id(xlDataId);
+//     if (!xlData) {
+//       return res.status(404).json({ msg: 'xlData not found' });
+//     }
+
+//     if (!xlData.pdfBuffer) {
+//       return res.status(404).json({ msg: 'PDF data not found' });
+//     }
+
+//     res.setHeader('Content-Type', 'application/pdf');
+//     res.send(xlData.pdfBuffer);
+//   } catch (error) {
+//     res.status(500).json({ msg: error.message });
+//   }
+// };
 

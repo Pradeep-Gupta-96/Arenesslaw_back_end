@@ -1,5 +1,5 @@
 import express from 'express'
-import { postexceldata, getAllexceldata, exponedexcelldata, exportExcelData, detailsPage } from '../controllers/excelController.js'
+import { postexceldata, getAllexceldata, exponedexcelldata, exportExcelData, detailsPage, allNoticesOfOneUser } from '../controllers/excelController.js'
 import multer from 'multer'
 import auth from '../middleware/auth.js'
 
@@ -29,5 +29,6 @@ excelRoute.get('/getAllexceldata', auth, getAllexceldata)
 excelRoute.get('/exponedexcelldata/:id', auth, exponedexcelldata)
 excelRoute.get('/exportExcelData/:id/:query', auth, exportExcelData)
 excelRoute.get('/detailsPage/:id', auth, detailsPage)
+excelRoute.get('/allnoticesofoneusers/:account', auth, allNoticesOfOneUser)
 excelRoute.post('/', auth, upload.single('file'), postexceldata)
 
