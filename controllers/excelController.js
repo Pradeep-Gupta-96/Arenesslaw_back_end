@@ -104,7 +104,7 @@ export const postexceldata = async (req, res) => {
 
 export const getAllexceldata = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Default page is 1
+    const page = req.query.page || 1;
     const pageSize = 20; // Default page size is 10
 
     const totalItems = await Excel.countDocuments();
@@ -127,6 +127,84 @@ export const getAllexceldata = async (req, res) => {
     res.status(500).json({ msg: error.message })
   }
 }
+
+export const getAllexceldatabydate = async (req, res) => {
+  try {
+    const page = req.query.page || 1;
+    const searchvalue = req.params.inputdate; // Get the inputdate from the URL parameter
+    const pageSize = 20; // Default page size is 20
+
+    // Parse the input date
+    const searchDate = new Date(searchvalue);
+
+    // Calculate the start and end date for the query
+    const startDate = new Date(searchDate);
+    const endDate = new Date(searchDate);
+    endDate.setDate(searchDate.getDate() + 1); // Add one day to get the end date
+
+    // Count the total items that match the date range
+    const totalItems = await Excel.countDocuments({ createdAt: { $gte: startDate, $lt: endDate } });
+
+    // Calculate the total number of pages based on total items and page size
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    // Fetch the data that match the date range
+    const data = await Excel.find({ createdAt: { $gte: startDate, $lt: endDate } })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    // Return the filtered data along with page information
+    return res.status(200).json({
+      message: data,
+      pageInfo: {
+        page,
+        pageSize,
+        totalPages,
+        totalItems,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ msg: error.message })
+  }
+}
+
+
+
+export const getAllexceldatabyNotice = async (req, res) => {
+  try {
+    const page = req.query.page || 1;
+    const searchvalue = req.params.noticetype; // Get the inputvalue from the URL parameter
+    const pageSize = 20; // Default page size is 2
+
+    // Regular expression to match values starting with searchNoticeType
+    const searchRegex = new RegExp(`^${searchvalue}`, 'i'); // 'i' flag for case-insensitive
+
+    // Count the total items that match either search criteria
+    const totalItems = await Excel.countDocuments({ NoticeType: { $regex: searchRegex } });
+
+    // Calculate the total number of pages based on total items and page size
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    // Fetch the data that match either search criteria
+    const data = await Excel.find({ NoticeType: { $regex: searchRegex } })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    // Return the filtered data along with page information
+    return res.status(200).json({
+      message: data,
+      pageInfo: {
+        page,
+        pageSize,
+        totalPages,
+        totalItems,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ msg: error.message })
+  }
+}
+
 
 
 export const exponedexcelldata = async (req, res) => {
@@ -154,6 +232,41 @@ export const exponedexcelldata = async (req, res) => {
 
     // Send the result array in the response
     res.status(200).json({ message: resultArray, totalPages: totalPages })
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
+export const searchingAdmindata = async (req, res) => {
+  try {
+    const excelId = req.params.id; // Get the Excel document's _id from the URL parameter
+    const searchvalue = req.params.inputvalue; // Get the inputvalue from the URL parameter
+    const page = req.query.page || 1;
+
+    const pageSize = 20; // Fixed page size
+
+    // Calculate the skip value based on the page number and page size
+    const skip = (page - 1) * pageSize;
+
+    // Build the regular expression to match strings starting with searchvalue
+    const searchRegex = new RegExp(`^${searchvalue}`, 'i'); // 'i' flag for case-insensitive
+
+    // Build the query to filter XLData based on excelId, FPR_NAME, and starting EMBONAME
+    const xlDataQuery = XLData.find({ excelId, "EMBONAME": { $regex: searchRegex } })
+      .skip(skip)
+      .limit(pageSize);
+
+    // Get the total data count for the filtered query
+    const totalDataCount = await XLData.countDocuments({ excelId, "EMBONAME": { $regex: searchRegex } });
+
+    // Calculate the total number of pages based on the total data count and page size
+    const totalPages = Math.ceil(totalDataCount / pageSize);
+
+    // Execute the query and get the array of data
+    const resultArray = await xlDataQuery.exec();
+
+    // Send the result array and total pages in the response
+    res.status(200).json({ message: resultArray, totalPages: totalPages });
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
@@ -191,6 +304,41 @@ export const exportExcelData = async (req, res) => {
   }
 };
 
+export const searchingdata = async (req, res) => {
+  try {
+    const excelId = req.params.id; // Get the Excel document's _id from the URL parameter
+    const FPR_NAME = req.params.query; // Get the username from the URL parameter
+    const searchvalue = req.params.inputvalue; // Get the inputvalue from the URL parameter
+    const page = req.query.page || 1;
+
+    const pageSize = 20; // Fixed page size
+
+    // Calculate the skip value based on the page number and page size
+    const skip = (page - 1) * pageSize;
+
+    // Build the regular expression to match strings starting with searchvalue
+    const searchRegex = new RegExp(`^${searchvalue}`, 'i'); // 'i' flag for case-insensitive
+
+    // Build the query to filter XLData based on excelId, FPR_NAME, and starting EMBONAME
+    const xlDataQuery = XLData.find({ excelId, "FPR_NAME": FPR_NAME, "EMBONAME": { $regex: searchRegex } })
+      .skip(skip)
+      .limit(pageSize);
+
+    // Get the total data count for the filtered query
+    const totalDataCount = await XLData.countDocuments({ excelId, "FPR_NAME": FPR_NAME, "EMBONAME": { $regex: searchRegex } });
+
+    // Calculate the total number of pages based on the total data count and page size
+    const totalPages = Math.ceil(totalDataCount / pageSize);
+
+    // Execute the query and get the array of data
+    const resultArray = await xlDataQuery.exec();
+
+    // Send the result array and total pages in the response
+    res.status(200).json({ message: resultArray, totalPages: totalPages });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
 
 export const detailsPage = async (req, res) => {
   try {
@@ -213,26 +361,19 @@ export const allNoticesOfOneUser = async (req, res) => {
     // Find XLData documents that match the account
     const xlDataQuery = await XLData.find({ ACCOUNT: account });
 
-    // // Extract the unique excelIds from XLData
-    // const uniqueExcelIds = xlDataQuery.map((item) => item.excelId);
-
-    // // Find Excel documents using the unique excelIds
-    // const excelDocuments = await Excel.find({ _id: { $in: uniqueExcelIds } });
-
-    //  // Extract the unique excelIds from XLData
-    //  const uniqueXLDataIds = excelDocuments.map((item) => item._id);
-   
-    //    // Find XLData documents using the unique id
-    //    const XLDataDocuments = await XLData.find({
-    //     excelId: { $in: uniqueXLDataIds },
-    //     ACCOUNT: account
-    //   });
-
-    return res.status(200).json({ message: xlDataQuery});
+    return res.status(200).json({ message: xlDataQuery });
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
 };
+
+
+
+
+
+
+
+
 
 
 // export const getPDF = async (req, res) => {
