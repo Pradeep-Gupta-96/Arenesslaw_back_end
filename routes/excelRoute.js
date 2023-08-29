@@ -1,16 +1,18 @@
 import express from 'express'
 import {
-     postexceldata,
-      getAllexceldata,
-       exponedexcelldata,
-        exportExcelData,
-         detailsPage,
-          allNoticesOfOneUser,
-           searchingdata,
-            searchingAdmindata,
-              getAllexceldatabydate, 
-              getAllexceldatabyNotice
-            } from '../controllers/excelController.js'
+    postexceldata,
+    getAllexceldata,
+    exponedexcelldata,
+    exportExcelData,
+    detailsPage,
+    allNoticesOfOneUser,
+    searchingdata,
+    searchingAdmindata,
+    getAllexceldatabydate,
+    getAllexceldatabyNotice,
+    exportinxlsx,
+    Chart_data_visualization_admin
+} from '../controllers/excelController.js'
 import multer from 'multer'
 import auth from '../middleware/auth.js'
 
@@ -35,15 +37,22 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Routes
+//  admin Routes
+
 excelRoute.get('/getAllexceldata', auth, getAllexceldata)
 excelRoute.get('/getAllexceldatabydate/:inputdate', auth, getAllexceldatabydate)
 excelRoute.get('/getAllexceldatabyNotice/:noticetype', auth, getAllexceldatabyNotice)
 excelRoute.get('/exponedexcelldata/:id', auth, exponedexcelldata)
+excelRoute.get('/Chart_data_visualization_admin/:id', auth, Chart_data_visualization_admin)
 excelRoute.get('/searchingAdmindata/:id/:inputvalue', auth, searchingAdmindata)
+excelRoute.get('/exportinxlsx/:id', exportinxlsx)
+
+//users Routes
 excelRoute.get('/exportExcelData/:id/:query', auth, exportExcelData)
 excelRoute.get('/searchingdata/:id/:query/:inputvalue', auth, searchingdata)
 excelRoute.get('/detailsPage/:id', auth, detailsPage)
 excelRoute.get('/allnoticesofoneusers/:account', auth, allNoticesOfOneUser)
+
+//upload file
 excelRoute.post('/', auth, upload.single('file'), postexceldata)
 

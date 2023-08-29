@@ -237,6 +237,70 @@ export const exponedexcelldata = async (req, res) => {
   }
 };
 
+
+
+export const Chart_data_visualization_admin = async (req, res) => {
+  try {
+    const excelId = req.params.id; // Get the Excel document's _id from the URL parameter
+
+    // Find XLData subdocuments with the specified excelId
+    const xlData = await XLData.find({ excelId: excelId });
+
+    if (!xlData) {
+      return res.status(404).json({ msg: "No data found for the provided ID" });
+    }
+
+    // Get the total data count
+    const totalDataCount = await XLData.countDocuments({ excelId: excelId });
+
+
+    // Initialize counters for different statuses
+    let deliveredCount = 0;
+    let BounceCount = 0;
+    let dropCount = 0;
+    let naCount = 0;
+    let openCount = 0;
+
+    let smsDeliveredCount = 0;
+    let smsUndeliveredCount = 0;
+    let smsExpiredCount = 0;
+
+    // Iterate through xlData to count occurrences
+    xlData.forEach((data) => {
+      if (data["EMAIL STATUS"] === "Delivered") deliveredCount++;
+      if (data["EMAIL STATUS"] === "Bounce") BounceCount++;
+      if (data["EMAIL STATUS"] === "Drop") dropCount++;
+      if (data["EMAIL STATUS"] === "NA") naCount++;
+      if (data["EMAIL STATUS"] === "Open") openCount++;
+
+      if (data["SMS Status"] === "Delivered") smsDeliveredCount++;
+      if (data["SMS Status"] === "Undelivered") smsUndeliveredCount++;
+      if (data["SMS Status"] === "Expired") smsExpiredCount++;
+    });
+
+    // Create a result object with the counts
+    const result = {
+      deliveredCount,
+      BounceCount,
+      dropCount,
+      naCount,
+      openCount,
+      smsDeliveredCount,
+      smsUndeliveredCount,
+      smsExpiredCount,
+      totalDataCount
+    };
+
+    // Send the result object in the response
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
+
+
+
 export const searchingAdmindata = async (req, res) => {
   try {
     const excelId = req.params.id; // Get the Excel document's _id from the URL parameter
@@ -271,6 +335,26 @@ export const searchingAdmindata = async (req, res) => {
     res.status(500).json({ msg: error.message });
   }
 };
+
+
+
+export const exportinxlsx = async (req, res) => {
+  try {
+    const excelId = req.params.id; // Get the Excel document's _id from the URL parameter
+
+    // Find XLData subdocuments with the specified excelId
+    const xlDataQuery = XLData.find({ excelId: excelId });
+
+    // Execute the query and get the array of data
+    const resultArray = await xlDataQuery.exec();
+
+    // Send the result array in the response
+    res.status(200).json({ message: resultArray });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
 
 export const exportExcelData = async (req, res) => {
   try {
