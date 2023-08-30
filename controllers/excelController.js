@@ -211,7 +211,10 @@ export const exponedexcelldata = async (req, res) => {
   try {
     const excelId = req.params.id; // Get the Excel document's _id from the URL parameter
     const page = req.query.page || 1;
-    const pageSize = 20; // Fixed page size
+    let pageSize = (req.query.pageSize) || 20; // Get the page size from the query parameter, default to 20
+
+    // Ensure the page size is within a reasonable range
+    pageSize = Math.min(Math.max(pageSize, 1), 100);
 
     // Calculate the skip value based on the page number and page size
     const skip = (page - 1) * pageSize;
@@ -230,8 +233,9 @@ export const exponedexcelldata = async (req, res) => {
     // Execute the query and get the array of data
     const resultArray = await xlDataQuery.exec();
 
+
     // Send the result array in the response
-    res.status(200).json({ message: resultArray, totalPages: totalPages })
+    res.status(200).json({ message: resultArray, totalPages: totalPages });
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
@@ -307,7 +311,10 @@ export const searchingAdmindata = async (req, res) => {
     const searchvalue = req.params.inputvalue; // Get the inputvalue from the URL parameter
     const page = req.query.page || 1;
 
-    const pageSize = 20; // Fixed page size
+    let pageSize = (req.query.pageSize) || 20; // Get the page size from the query parameter, default to 20
+
+    // Ensure the page size is within a reasonable range
+    pageSize = Math.min(Math.max(pageSize, 1), 100);
 
     // Calculate the skip value based on the page number and page size
     const skip = (page - 1) * pageSize;
