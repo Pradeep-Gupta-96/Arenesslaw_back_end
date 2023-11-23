@@ -264,10 +264,13 @@ export const Chart_data_visualization_admin = async (req, res) => {
     let dropCount = 0;
     let naCount = 0;
     let openCount = 0;
+    let DeferredCount = 0;
 
     let smsDeliveredCount = 0;
     let smsUndeliveredCount = 0;
     let smsExpiredCount = 0;
+    let smsnaCount = 0;
+
 
     // Iterate through xlData to count occurrences
     xlData.forEach((data) => {
@@ -276,10 +279,12 @@ export const Chart_data_visualization_admin = async (req, res) => {
       if (data["EMAIL STATUS"] === "Drop") dropCount++;
       if (data["EMAIL STATUS"] === "NA") naCount++;
       if (data["EMAIL STATUS"] === "Open") openCount++;
+      if (data["EMAIL STATUS"] === "Deferred") DeferredCount++;
 
       if (data["SMS Status"] === "Delivered") smsDeliveredCount++;
       if (data["SMS Status"] === "Undelivered") smsUndeliveredCount++;
       if (data["SMS Status"] === "Expired") smsExpiredCount++;
+      if (data["SMS Status"] === "NA") smsnaCount++;
     });
 
     // Create a result object with the counts
@@ -289,9 +294,11 @@ export const Chart_data_visualization_admin = async (req, res) => {
       dropCount,
       naCount,
       openCount,
+      DeferredCount,
       smsDeliveredCount,
       smsUndeliveredCount,
       smsExpiredCount,
+      smsnaCount,
       totalDataCount
     };
 
