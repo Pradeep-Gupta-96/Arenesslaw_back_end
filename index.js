@@ -24,8 +24,8 @@ database()
 
 
 
-app.use("/user", userRouter)
-app.use("/excel", excelRoute)
+app.use("/api/user", userRouter)
+app.use("/api/excel", excelRoute)
 
 
 const __filename = fileURLToPath(import.meta.url);
