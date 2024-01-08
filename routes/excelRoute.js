@@ -11,7 +11,8 @@ import {
     getAllexceldatabydate,
     getAllexceldatabyNotice,
     exportinxlsx,
-    Chart_data_visualization_admin
+    Chart_data_visualization_admin,
+    newdata
 } from '../controllers/excelController.js'
 import multer from 'multer'
 import auth from '../middleware/auth.js'
@@ -55,4 +56,7 @@ excelRoute.get('/allnoticesofoneusers/:account', auth, allNoticesOfOneUser)
 
 //upload file
 excelRoute.post('/', auth, upload.single('file'), postexceldata)
+
+excelRoute.delete('/deleteacc/:excelId',newdata)
+
 

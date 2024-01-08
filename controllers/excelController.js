@@ -465,6 +465,22 @@ export const allNoticesOfOneUser = async (req, res) => {
   }
 };
 
+export const newdata = async (req, res) => {
+  try {
+    const excelId = req.params.excelId; // assuming the excelId is passed as a URL parameter
+console.log(excelId)
+    // Find and delete XLData documents that match the excelId
+    const deleteResult = await XLData.deleteMany({ excelId: excelId });
+
+    if (deleteResult.deletedCount > 0) {
+      return res.status(200).json({ message: `Successfully deleted ${deleteResult.deletedCount} records.` });
+    } else {
+      return res.status(404).json({ message: "No records found to delete." });
+    }
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
 
 
 

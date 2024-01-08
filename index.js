@@ -32,9 +32,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 app.use(express.static(path.join(__dirname, 'public')))
 
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
     res.send("vighnharth shree ganesha deva")
 })
+
 
 const port = process.env.port
 app.listen(port, () => {
