@@ -4,6 +4,7 @@ const excelSchema = new mongoose.Schema({
     filename:String,
     Bank:String,
     NoticeType:String,
+    ExecutionDate:Date,
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

@@ -22,7 +22,7 @@ const createUser = async (item) => {
         password: 'Areness@123'
       };
 
-      const response = await fetch('http://localhost:4000/user/signup', {
+      const response = await fetch('https://recqarz.com/user/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ const createUser = async (item) => {
 
 export const postexceldata = async (req, res) => {
   try {
-    const { filename, Bank, NoticeType } = req.body;
+    const { filename, Bank, NoticeType, ExecutionDate } = req.body;
     const userId = req.userId;
     const workbook = XLSX.readFile(req.file.path);
     const sheetNamelist = workbook.SheetNames;
@@ -77,6 +77,7 @@ export const postexceldata = async (req, res) => {
       filename,
       Bank,
       NoticeType,
+      ExecutionDate,
       userId,
     });
 
@@ -150,6 +151,46 @@ export const getAllexceldatabydate = async (req, res) => {
 
     // Fetch the data that match the date range
     const data = await Excel.find({ createdAt: { $gte: startDate, $lt: endDate } })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    // Return the filtered data along with page information
+    return res.status(200).json({
+      message: data,
+      pageInfo: {
+        page,
+        pageSize,
+        totalPages,
+        totalItems,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ msg: error.message })
+  }
+}
+export const getAllexceldatabydate1 = async (req, res) => {
+  try {
+    const page = req.query.page || 1;
+    // const searchvalue = req.params.inputdate; // Get the inputdate from the URL parameter
+    console.log(req.query);
+    const pageSize = 20; // Default page size is 20
+
+    // Parse the input date
+    const searchDate = new Date(searchvalue);
+
+    // Calculate the start and end date for the query
+    const startDate = new Date(searchDate);
+    const endDate = new Date(searchDate);
+    endDate.setDate(searchDate.getDate() + 1); // Add one day to get the end date
+
+    // Count the total items that match the date range
+    const totalItems = await Excel.countDocuments({ ExecutionDate: { $gte: startDate, $lt: endDate } });
+
+    // Calculate the total number of pages based on total items and page size
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    // Fetch the data that match the date range
+    const data = await Excel.find({ ExecutionDate: { $gte: startDate, $lt: endDate } })
       .skip((page - 1) * pageSize)
       .limit(pageSize);
 

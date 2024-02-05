@@ -12,7 +12,7 @@ import {
     getAllexceldatabyNotice,
     exportinxlsx,
     Chart_data_visualization_admin,
-    newdata
+    newdata,
 } from '../controllers/excelController.js'
 import multer from 'multer'
 import auth from '../middleware/auth.js'
