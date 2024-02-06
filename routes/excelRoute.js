@@ -12,6 +12,7 @@ import {
     Chart_data_visualization_admin,
     newdata,
     getFilteredExcelData,
+    myCountController,
 } from '../controllers/excelController.js'
 import multer from 'multer'
 import auth from '../middleware/auth.js'
@@ -47,6 +48,7 @@ excelRoute.get('/exponedexcelldata/:id', auth, exponedexcelldata)
 excelRoute.get('/Chart_data_visualization_admin/:id', auth, Chart_data_visualization_admin)
 excelRoute.get('/searchingAdmindata/:id/:inputvalue', auth, searchingAdmindata)
 excelRoute.get('/exportinxlsx/:id', exportinxlsx)
+excelRoute.post('/count', myCountController)
 
 //users Routes
 excelRoute.get('/exportExcelData/:id/:query', auth, exportExcelData)

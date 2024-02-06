@@ -502,3 +502,59 @@ console.log(excelId)
 //   }
 // };
 
+
+
+export const myCountController = async (req, res) => {
+  try {
+    const {startDate = '2024-01-01', endDate='2024-01-31', noticeType='Police Complaint'} = req.body
+   
+    // Aggregate documents in the excels collection based on ExecutionDate and NoticeType
+    const aggregationPipeline = [
+      {
+        $match: {
+          ExecutionDate: {
+            // $gte: new Date('2024-01-01'),
+            // $lte: new Date('2024-01-31')
+            $gte: new Date(`${startDate}`),
+            $lte: new Date(`${endDate}`)
+          },
+          NoticeType: `${noticeType}`  
+          // NoticeType: 'Demand legal Notice' // 456958 FOR DEC // 449814 FOR JAN
+          // NoticeType: 'QLD' // 74771 FOR DEC // 71707 FOR JAN
+          // NoticeType: 'E-Conciliation' // 0 FOR DEC // 0 FOR JAN
+          // NoticeType: 'Police Complaint' // 0 FOR DEC // 0 FOR JAN
+          // NoticeType: 'Execution Notice' // 0 FOR DEC // 0 FOR JAN
+          // NoticeType: 'Physical conciliation' // 0 FOR DEC // 0 FOR JAN
+        }
+      },
+      {
+        $group: {
+          _id: '$ExecutionDate', // Group by ExecutionDate
+          excelIds: { $addToSet: '$_id' } // Collect unique excelIds for each group
+        }
+      }
+    ];
+ 
+    const excelDocuments = await Excel.aggregate(aggregationPipeline);
+ 
+    let totalCount = 0;
+ 
+    // For each group of documents, count documents in xldatas collection
+    for (const excelGroup of excelDocuments) {
+      const excelIds = excelGroup.excelIds;
+ 
+      // Count documents in xldatas collection based on excelIds
+      const count = await XLData.countDocuments({
+        excelId: { $in: excelIds }
+      });
+ 
+      totalCount += count;
+    }
+ 
+    // Send total count as a single response
+    res.status(200).json({ totalCount: totalCount, noticeType });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
