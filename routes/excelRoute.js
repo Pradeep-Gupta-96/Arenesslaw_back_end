@@ -8,11 +8,10 @@ import {
     allNoticesOfOneUser,
     searchingdata,
     searchingAdmindata,
-    getAllexceldatabydate,
-    getAllexceldatabyNotice,
     exportinxlsx,
     Chart_data_visualization_admin,
     newdata,
+    getFilteredExcelData,
 } from '../controllers/excelController.js'
 import multer from 'multer'
 import auth from '../middleware/auth.js'
@@ -41,8 +40,9 @@ const upload = multer({ storage });
 //  admin Routes
 
 excelRoute.get('/getAllexceldata', auth, getAllexceldata)
-excelRoute.get('/getAllexceldatabydate/:inputdate', auth, getAllexceldatabydate)
-excelRoute.get('/getAllexceldatabyNotice/:noticetype', auth, getAllexceldatabyNotice)
+// Updated to use query parameters instead of a single path parameter
+excelRoute.get('/getFilteredExcelData', auth, getFilteredExcelData);
+
 excelRoute.get('/exponedexcelldata/:id', auth, exponedexcelldata)
 excelRoute.get('/Chart_data_visualization_admin/:id', auth, Chart_data_visualization_admin)
 excelRoute.get('/searchingAdmindata/:id/:inputvalue', auth, searchingAdmindata)
